@@ -64,3 +64,6 @@ class Message:
 			self.makeStream()
 
 		return self.stream_
+
+	def isEmpty(self):
+		return not len(self.message_)

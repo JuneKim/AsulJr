@@ -1,4 +1,3 @@
-
 from serial import threaded
 
 # 키 인덱스
@@ -26,7 +25,7 @@ Keymap = {
 	b'j': [KEY_CIRCLE, 'KEY_CIRCLE'],
 }
 
-class asuleProtocol(threaded.Protocol):
+class AsuleProtocol(threaded.Protocol):
 	def connection_mode(self, transport):
 		self.transport = transport
 		self.running = True
@@ -35,26 +34,10 @@ class asuleProtocol(threaded.Protocol):
 		self.transport = None
 
 	def data_received(self, data):
-		''' Todo '''
-		if data in Keymap:
-			print(Keymap[data][1])
+		return
+	def write(self, data):
+		print(data)
+		self.transport.write(data)
 
-			# Keymap[data][0]은 키 인덱스
-            
-			# 매칭되는 key 인덱스 가져옴
-            key = Keymap[data][0]
-            
-            # 매핑 키가 CIRCLE 키이면 프로그램 종료        
-            if key == KEY_CIRCLE:
-                self.running = False
-        else:
-            print('Unknown data', data)
-
-    # 데이터 보낼 때 함수
-    def write(self,data):
-        print(data)
-        self.transport.write(data)
-        
-    # 종료 체크
-    def isDone(self):
-        return self.running
+	def isDone(self):
+		return self.running
