@@ -5,6 +5,10 @@ from asule_face_detection import AsuleFaceDetection
 import threading
 from enum import Enum
 import cv2
+import logging
+import os
+from picamera.array import PiRGBArray
+from picamera import PiCamera
 
 class AsuleCameraMode(Enum):
 	_ASULE_REDBALL_DETECTION = 1
@@ -23,7 +27,10 @@ class AsuleCamera(threading.Thread):
 		threading.Thread.__init__(self, name = 'AsuleCamera')
 
 	def run(self):
-		capture = cv2.VideoCapture(0)
+		camera = PiCamera()
+		rawCapture = PiRGBArray(camera)
+		#capture = cv2.VideoCapture(0)
+		capture = camera.capture(rawCapture, format="bgr")
 		if capture.isOpened() == False:
 			logging.error('error: fail to open camera')
 			os.system('pause')

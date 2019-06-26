@@ -3,17 +3,22 @@ from asule_message import Message
 from asule_camera import AsuleCamera
 
 import logging
-import queue
+import sys
+if sys.version_info[0] == 2:
+	import Queue as queue
+else:
+	import queue as queue
+
 import serial
 
 
 # global setting
 PORT = '/dev/ttyUSB0'
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s:%(thead)d,%(name)s %(levelname)s %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s:%(threadName)s [%(funcName)s:%(lineno)d] %(levelname)s %(message)s')
 
 g_tasks = queue.Queue()
-
+ 
 def runTasks(p):
 	if g_tasks.empty() == False:
 		try:

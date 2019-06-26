@@ -1,6 +1,5 @@
 from serial import threaded
 
-# 키 인덱스
 KEY_LEFT = 0
 KEY_UP = 1
 KEY_RIGHT = 2
