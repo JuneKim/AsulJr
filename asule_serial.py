@@ -25,9 +25,10 @@ Keymap = {
 }
 
 class AsuleProtocol(threaded.Protocol):
+	running = False
 	def connection_mode(self, transport):
 		self.transport = transport
-		self.running = True
+		AsuleProtocol.running = True
 
 	def connection_lost(self, exc):
 		self.transport = None
@@ -39,4 +40,4 @@ class AsuleProtocol(threaded.Protocol):
 		self.transport.write(data)
 
 	def isDone(self):
-		return self.running
+		return AsuleProtocol.running
