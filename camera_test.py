@@ -8,7 +8,7 @@ capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
 while(capture.isOpened()):
 	ret, frame = capture.read()
 	if ret:
-		frame = cv2.flip(frame, 0)
+		frame = cv2.flip(frame, -1)
 		gray_img = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
 		cv2.imshow('result', gray_img)

@@ -15,7 +15,7 @@ class AsuleRedballDetection(AsuleDetection):
 		if not ret:
 			logging.debug ('error: fail to get image')
 			return msg
-
+		frame = cv2.flip(frame, -1)
 		frameHSV = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 		''' may need to modify range '''
 		threshLow = cv2.inRange(frameHSV, (0, 100, 100), (10, 255, 255))
