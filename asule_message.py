@@ -14,34 +14,41 @@ class Command(Enum):
 	GET = 2
 	NOTI = 3
 
-class Message:
+class AsuleMessage:
 	_START = "$"
 	_END = "*"
 
 	def __init__(self):
 		self.message_ = []
-		self.stream_ = ""
+		self.stream_ = str()
 
-	def createSetMessage(self, command_, type_, id1_, valList1_, id2_, valList2_):
+	def createSetMessage(self, command_, type_, id1_ = -1, valList1_ = [], id2_ = -1, valList2_ = []):
 		self.message_.append(Command(command_).name)
 		self.message_.append(str(type_))
-		self.message_.append(str(id1_))
-		self.message_.extend([str(num) for num in valList1_])
-		self.message_.append(str(id2_))
-		self.message_.extend([str(num) for num in valList2_])
+		if id1_ is not -1:
+			self.message_.append(str(id1_))
+			self.message_.extend([str(num) for num in valList1_])
+		if id2_ is not -1:
+			self.message_.append(str(id2_))
+			self.message_.extend([str(num) for num in valList2_])
+		self._makeStream()
 
 	def createGetMessage(self, command_, type_, id1_, id2_):
 		self.message_.append(Command(command_).name)
 		self.message_.append(type_)
+		self._makeStream()
 
 	
-	def createNotiMessage(self, command_, type_, id1_, valList1, id2_, valList2_):
+	def createNotiMessage(self, command_, type_, id1_ = -1, valList1 = [], id2_ = -1, valList2_ = []):
 		self.message_.append(Command(command_).name)
 		self.message_.append(str(type_))
-		self.message_.append(str(id1_))
-		self.message_.extend([str(num) for num in valList1_])
-		self.message_.append(str(id2_))
-		self.message_.extend([str(num) for num in valList2_])
+		if id1_ is not -1:
+			self.message_.append(str(id1_))
+			self.message_.extend([str(num) for num in valList1_])
+		if id2_ is not -1:
+			self.message_.append(str(id2_))
+			self.message_.extend([str(num) for num in valList2_])
+		self._makeStream()
 
 
 	def _calCheckSum(self, dataStr):
@@ -51,7 +58,7 @@ class Message:
 		
 		return 0xff - (0xff & csum) 
 
-	def makeStream(self):
+	def _makeStream(self):
 		dataStream = ",".join(self.message_)
 		csum = self._calCheckSum(dataStream)
 		checkSumStr = str(csum)
@@ -67,3 +74,9 @@ class Message:
 
 	def isEmpty(self):
 		return not len(self.message_)
+
+	def __str__(self):
+		return str(self.stream_)
+	
+	def __repr__(self):
+		return self.stream_

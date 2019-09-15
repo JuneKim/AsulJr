@@ -1,4 +1,3 @@
-from asule_message import Message
 from asule_detection import AsuleDetection
 
 import numpy as np
@@ -10,11 +9,10 @@ class AsuleRedballDetection(AsuleDetection):
 
 	def run(self):
 		#print ('AsuleRedballDetection running')
-		msg = Message()
 		ret, frame = self._capture.read()
 		if not ret:
 			logging.debug ('error: fail to get image')
-			return msg
+			return (0, 0, 0, frame)
 		frame = cv2.flip(frame, -1)
 		frameHSV = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 		''' may need to modify range '''
@@ -37,6 +35,7 @@ class AsuleRedballDetection(AsuleDetection):
 
 		circles = cv2.HoughCircles(frameRed, cv2.HOUGH_GRADIENT, 2, rows/4)
 		idx = 0
+		x = y = r = 0
 		if circles is not None:
 			for circle in circles[0]:
 				''' circles found @ (x, y)'''
@@ -44,8 +43,9 @@ class AsuleRedballDetection(AsuleDetection):
 				x, y, r = circle
 				cv2.circle(frame, (x, y), 3, (0, 255, 0), -1)
 				cv2.circle(frame, (x, y), r, (0, 0, 255), 3)
-		logging.debug ('returned...')
-		return (msg, frame)
+				logging.debug("circle({},{})".format(x, y))
+				break
+		return (x, y, r, frame)
 
 	def stop(self):
 		pass

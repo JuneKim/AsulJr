@@ -1,5 +1,5 @@
-from asule_serial import AsuleProtocol
-from asule_message import Message
+from asule_protocol import AsuleProtocol
+from asule_message import AsuleMessage
 from asule_camera import AsuleCamera
 
 import logging
@@ -19,25 +19,34 @@ PORT = '/dev/ttyACM0'
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s:%(threadName)s [%(funcName)s:%(lineno)d] %(levelname)s %(message)s')
 
-g_tasks = queue.Queue()
+g_inqueue = queue.Queue()
+g_outqueue = queue.Queue()
 DEBUG_ENABLED = True
+MAJOR_VERSION = 1
+MINOR_VERSION = 1
  
 def runTasks(p):
-	if g_tasks.empty() == False:
+	if g_inqueue.empty() == False:
 		try:
-			msg = g_tasks.get_nowait()
-			p.write(msg.getStream())
+			msg = g_inqueue.get_nowait()
+			logging.debug (msg)
 		except:
-			print ('Error:get_nowait')
+			logging.debug ('Error:inqueue.get_nowait')
 
+	if g_outqueue.empty() == False:
+		try:
+			msg = g_outqueue.get_nowait()
+#p.write(msg)
+			logging.debug ("outqueue:" + msg)
+		except:
+			logging.debug ("Error:outqueue.get_nowait()")
 
 def main():
-
+	logging.debug("AsuleJr v{}.{} is running.".format(MAJOR_VERSION, MINOR_VERSION))
 	timerSec = 1
 	# Run Camera / Img processing
-	cam = AsuleCamera(g_tasks)
+	cam = AsuleCamera(g_outqueue)
 	#cam.setDaemon(True)
-	logging.debug ('cam before')
 	cam.start()
 	logging.debug ('cam start')
 	#if is_bt_on == True:
@@ -45,12 +54,10 @@ def main():
 	#else:
 	try:
 		ser = serial.serial_for_url(PORT, baudrate = 115200, timeout=1)
-		logging.debug('1')
 		with serial.threaded.ReaderThread(ser, AsuleProtocol) as p:
-			logging.debug('2')
+			p.setQueue(g_inqueue)
 			#while p.isDone():
 			while 1:
-				logging.debug('isDone')
 				# do something
 				runTasks(p)
 				if DEBUG_ENABLED:
@@ -58,8 +65,6 @@ def main():
 					cv2.imshow('result', frame)
 					if cv2.waitKey(1) == 27:
 						break
-
-			logging.debug('3')
 
 	except serial.serialutil.SerialException:
 		logging.error("fail to open serial port")

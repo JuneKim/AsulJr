@@ -1,4 +1,5 @@
 from serial import threaded
+from asule_message import AsuleMessage
 
 KEY_LEFT = 0
 KEY_UP = 1
@@ -34,10 +35,20 @@ class AsuleProtocol(threaded.Protocol):
 		self.transport = None
 
 	def data_received(self, data):
+		msg = AsuleMessage(data)
+		if msg.isValid() == False:
+			return
+		self._queue.put(msg, 1) # timeout = 1 sec
+
 		return
+
 	def write(self, data):
 		print(data)
 		self.transport.write(data)
 
 	def isDone(self):
 		return AsuleProtocol.running
+
+	def setQueue(self, inqueue):
+		self._queue = inqueue
+

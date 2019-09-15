@@ -1,6 +1,7 @@
 from asule_detection import AsuleDetection
 from asule_redball_detection import AsuleRedballDetection
 from asule_face_detection import AsuleFaceDetection
+from asule_message import AsuleMessage, Type
 
 from threading import Thread, Lock
 from enum import Enum
@@ -15,6 +16,9 @@ class AsuleCameraMode(Enum):
 
 class AsuleCamera:
 	_MODE = AsuleCameraMode._ASULE_REDBALL_DETECTION
+	_X = 0
+	_Y = 0
+	_R = 0
 	
 	def __init__(self, tasks):
 
@@ -43,19 +47,25 @@ class AsuleCamera:
 	def run(self):
 		if self._MODE == AsuleCameraMode._ASULE_REDBALL_DETECTION:
 			detection = AsuleRedballDetection(self.stream)
-		elif self._MODE == _AsuleCameraMode.ASULE_FACE_DETECTION:
+		elif self._MODE == AsuleCameraMode._ASULE_FACE_DETECTION:
 			detection = AsuleFaceDetection(self.stream)
 		
 #		while not self._stopevent.isSet() and capture.isOpened():
 		while self.stream.isOpened():
-			(msg, frame) = detection.run()
-			if not msg.isEmpty():
+			x = y = r = 0
+			(x, y, r, frame) = detection.run()
+			if r is not 0:
+				#TODO
+				msg = AsuleMessage()
+				msg.createSetMessage(1, Type.SERVO_MOTOR.value, 0, [1])
 				self._tasks.put_nowait(msg)
+				logging.debug ("added:" + str(msg))
 
 			self.read_lock.acquire()
 			self.frame = frame
 			self.read_lock.release()
-			logging.debug ('queue')
+			time.sleep(0.01)
+
 	def read(self):
 		self.read_lock.acquire()
 		frame = self.frame.copy()
