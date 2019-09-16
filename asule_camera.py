@@ -33,6 +33,9 @@ class AsuleCamera:
 		self.read_lock = Lock()
 		(self.grabbed, self.frame) = self.stream.read()
 		self.started = False
+		self.leftx = 320 / 4
+		self.rightx = 320 / 4 * 3
+
 
 	def start(self):
 		if self.started:
@@ -52,14 +55,21 @@ class AsuleCamera:
 		
 #		while not self._stopevent.isSet() and capture.isOpened():
 		while self.stream.isOpened():
-			x = y = r = 0
+			x = y = r = 0.0
 			(x, y, r, frame) = detection.run()
-			if r is not 0:
+			if r != 0.0:
+				logging.debug("returns {},{},{}".format(x, y, r))
 				#TODO
 				msg = AsuleMessage()
 				msg.createSetMessage(1, Type.SERVO_MOTOR.value, 0, [1])
 				self._tasks.put_nowait(msg)
 				logging.debug ("added:" + str(msg))
+				if x < self.leftx:
+					logging.debug("left....")
+				elif x > self.rightx:
+					logging.debug("right...")
+				else:
+					logging.debug("center...")
 
 			self.read_lock.acquire()
 			self.frame = frame

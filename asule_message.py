@@ -1,4 +1,5 @@
 from enum import Enum
+import logging
 
 class Type(Enum):
 	DC_MOTOR = 1
@@ -30,7 +31,7 @@ class AsuleMessage:
 			self.message_.extend([str(num) for num in valList1_])
 		if id2_ is not -1:
 			self.message_.append(str(id2_))
-			self.message_.extend([str(num) for num in valList2_])
+			sel.message_.extend([str(num) for num in valList2_])
 		self._makeStream()
 
 	def createGetMessage(self, command_, type_, id1_, id2_):
@@ -61,7 +62,8 @@ class AsuleMessage:
 	def _makeStream(self):
 		dataStream = ",".join(self.message_)
 		csum = self._calCheckSum(dataStream)
-		checkSumStr = str(csum)
+		#logging.debug("checksum:{:#x}".format(csum))
+		checkSumStr = str(hex(csum)[2:])
 
 		self.stream_ = self._START + dataStream + self._END + checkSumStr
 		return self.stream_

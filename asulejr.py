@@ -27,19 +27,15 @@ MINOR_VERSION = 1
  
 def runTasks(p):
 	if g_inqueue.empty() == False:
-		try:
-			msg = g_inqueue.get_nowait()
-			logging.debug (msg)
-		except:
-			logging.debug ('Error:inqueue.get_nowait')
+		msg = g_inqueue.get_nowait()
+		if msg is None:
+			logging.debug(msg)
 
 	if g_outqueue.empty() == False:
-		try:
-			msg = g_outqueue.get_nowait()
-#p.write(msg)
-			logging.debug ("outqueue:" + msg)
-		except:
-			logging.debug ("Error:outqueue.get_nowait()")
+		msg = g_outqueue.get_nowait()
+		if msg is not None:
+			logging.debug(msg)
+			#p.write(msg)
 
 def main():
 	logging.debug("AsuleJr v{}.{} is running.".format(MAJOR_VERSION, MINOR_VERSION))

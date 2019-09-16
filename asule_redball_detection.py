@@ -35,16 +35,18 @@ class AsuleRedballDetection(AsuleDetection):
 
 		circles = cv2.HoughCircles(frameRed, cv2.HOUGH_GRADIENT, 2, rows/4)
 		idx = 0
-		x = y = r = 0
+		x = y = r = 0.0
+		maxx = maxy = maxr = 0.0
 		if circles is not None:
 			for circle in circles[0]:
 				''' circles found @ (x, y)'''
-				idx += 1
 				x, y, r = circle
-				cv2.circle(frame, (x, y), 3, (0, 255, 0), -1)
-				cv2.circle(frame, (x, y), r, (0, 0, 255), 3)
-				logging.debug("circle({},{})".format(x, y))
-				break
+				if x !=  0.0 and y != 0.0 and r != 0.0:
+					cv2.circle(frame, (x, y), 3, (0, 255, 0), -1)
+					cv2.circle(frame, (x, y), r, (0, 0, 255), 3)
+					logging.debug("circle({},{})".format(x, y))
+					break
+
 		return (x, y, r, frame)
 
 	def stop(self):
