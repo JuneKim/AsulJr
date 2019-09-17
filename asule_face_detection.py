@@ -7,41 +7,30 @@ import logging
 
 class AsuleFaceDetection(AsuleDetection):
 
+	def __init__(self, capture):
+		super().__init__(capture)
+		print (os.getcwd() + '/haarcascade_frontalface_default.xml')
+		self.face_cascade = cv2.CascadeClassifier(os.getcwd() + '/haarcascade_frontalface_default.xml')
+		#opencv-python/data/haarcascades/haarcascade_frontalface_default.xml
+
+
 	def run(self):
 		ret, frame = self._capture.read()
 		if not ret:
 			print ('error: fail to get image')
-			return (0, 0, 0, frame)
+			return (0, 0, 0, 0, frame)
 		frame = cv2.flip(frame, -1)
-		frameHSV = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-		''' may need to modify range '''
-		threshLow = cv2.inRange(frameHSV, (0, 100, 100), (10, 255, 255))
-		threshHigh = cv2.inRange(frameHSV, (160, 100, 100), (179, 255, 255))
-
-		frameRed = cv2.addWeighted(threshLow, 1.0, threshHigh, 1.0, 0.0)
-		frameRed = cv2.GaussianBlur(frameRed, (9, 9), 3, 3)
+		frameGray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
 
-		frameRed = cv2.dilate(frameRed, np.ones((5, 5), np.uint8))
-		frameRed = cv2.erode(frameRed, np.ones((5, 5), np.uint8))
-		
-		rows, cols = frameRed.shape
+		faces = self.face_cascade.detectMultiScale(frameGray, 1.1, 4)
 
-		circles = cv2.HoughCircles(frameRed, cv2.HOUGH_GRADIENT, 2, rows/4)
-		idx = 0
-		x = y = z = 0
-		if circles is not None:
-			logging.debug("circles found")
-			for circle in circles[0]:
-				''' circles found @ (x, y)'''
-				idx += 1
-				x, y, r = circle
-				cv2.circle(frame, (x, y), 3, (0, 255, 0), -1)
-				cv2.circle(frame, (x, y), r, (0, 0, 255), 3)
-				logging.debug("circle found({},{})".format(x, y))
-				break
+		x = y = w = h = 0.0
+		for (x, y, w, h) in faces:
+			cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+			logging.debug("face found")
 
-		return (x, y, r, frame)
+		return (x, y, x + w, y + h, frame)
 
 	def stop(self):
 		pass

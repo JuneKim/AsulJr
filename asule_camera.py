@@ -15,7 +15,7 @@ class AsuleCameraMode(Enum):
 	_ASULE_FACE_DETECTION = 2
 
 class AsuleCamera:
-	_MODE = AsuleCameraMode._ASULE_REDBALL_DETECTION
+	_MODE = AsuleCameraMode._ASULE_FACE_DETECTION
 	_X = 0
 	_Y = 0
 	_R = 0
@@ -55,8 +55,8 @@ class AsuleCamera:
 		
 #		while not self._stopevent.isSet() and capture.isOpened():
 		while self.stream.isOpened():
-			x = y = r = 0.0
-			(x, y, r, frame) = detection.run()
+			x = y = r = z = 0.0
+			(x, y, r, z, frame) = detection.run()
 			if r != 0.0:
 				logging.debug("returns {},{},{}".format(x, y, r))
 				#TODO
